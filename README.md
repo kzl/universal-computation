@@ -10,13 +10,17 @@ For a minimal demonstration of frozen pretrained transformers, see ```demo.ipynb
 You can run the notebook which reproduces the Bit XOR experiment in a couple minutes, and visualizes the learned
 attention maps.
 
-
 ### Status
-Project is released but will receive updates soon.
+No updates are currently planned but there may be new features added in the future.
 
 Currently the repo supports the following tasks:
 ```
-['bit-memory', 'bit-xor', 'listops', 'mnist', 'cifar10', 'cifar10-gray']
+['bit-memory', 'bit-xor', 'listops', 'mnist', 'cifar10', 'cifar10-gray', 'remote-homology']
+```
+
+As well as the following models:
+```
+['gpt2', 'gpt2-medium', 'gpt2-large', 'gpt2-xl', 'vit', 'lstm']
 ```
 
 Note that CIFAR-10 LRA is ```cifar10-gray``` with a patch size of 1.
@@ -38,7 +42,7 @@ Note that CIFAR-10 LRA is ```cifar10-gray``` with a patch size of 1.
 ### Downloading datasets
 
 Datasets are stored in ```data/```.
-MNIST and CIFAR-10 are automatically downloaded by Pytorch upon starting experiment.
+MNIST and CIFAR-10 are automatically downloaded by PyTorch upon starting experiment.
 
 #### Listops
 
@@ -49,7 +53,13 @@ The script evaluates on the validation set by default.
 
 #### Remote homology
 
-Support coming soon.
+Install and download the files for Remote Homology from [TAPE](https://github.com/songlab-cal/tape).
+Move the files into ```data/tape```, i.e. there will exist a directory (and valid variant)
+   ```
+   data/tape/remote_homology/remote_homology_train.lmdb
+   ```
+Inside, there should be two files, ```data.mdb``` and ```lock.mdb```.
+The script evaluates on the validation set by default.
 
 ### Running experiments
 

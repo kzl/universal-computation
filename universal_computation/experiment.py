@@ -53,6 +53,13 @@ def experiment(
         use_embeddings = False
         experiment_type = 'classification'
 
+    elif task == 'listops':
+        from universal_computation.datasets.listops import ListopsDataset
+        dataset = ListopsDataset(batch_size=batch_size, device=device)
+        input_dim, output_dim = 15, 10
+        use_embeddings = True
+        experiment_type = 'classification'
+
     elif task == 'mnist':
         from universal_computation.datasets.mnist import MNISTDataset
         dataset = MNISTDataset(batch_size=batch_size, patch_size=patch_size, device=device)
@@ -74,12 +81,13 @@ def experiment(
         use_embeddings = False
         experiment_type = 'classification'
 
-    elif task == 'listops':
-        from universal_computation.datasets.listops import ListopsDataset
-        dataset = ListopsDataset(batch_size=batch_size, device=device)
-        input_dim, output_dim = 15, 10
+    elif task == 'remote-homology':
+        from universal_computation.datasets.remote_homology import RemoteHomologyDataset
+        dataset = RemoteHomologyDataset(train_batch_size=batch_size, test_batch_size=4*batch_size, device=device)
+        input_dim, output_dim = 30, 1200
         use_embeddings = True
         experiment_type = 'classification'
+
     else:
         raise NotImplementedError('dataset not implemented')
 

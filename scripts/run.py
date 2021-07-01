@@ -6,13 +6,13 @@ if __name__ == '__main__':
     experiment_name = 'fpt'
 
     experiment_params = dict(
-        task='bit-memory',
+        task='remote-homology',
         n=1000,                # ignored if not a bit task
         num_patterns=5,        # ignored if not a bit task
         patch_size=50,
 
         model_name='gpt2',
-        pretrained=True,
+        pretrained=True,       # if vit this is forced to true, if lstm this is forced to false
 
         freeze_trans=True,     # if False, we don't check arguments other than in and out
         freeze_in=False,
@@ -26,9 +26,9 @@ if __name__ == '__main__':
         out_layer_sizes=None,  # ex. [32, 32] creates a 2-layer MLP with dimension 32
 
         learning_rate=1e-3,
-        batch_size=2,
+        batch_size=4,
         dropout=0.1,
-        orth_gain=1.41,
+        orth_gain=1.41,        # orthogonal initialization of input layer
     )
 
     run_experiment(experiment_name, experiment_params)

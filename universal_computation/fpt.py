@@ -43,9 +43,9 @@ class FPT(nn.Module):
 
             pretrained_transformer = GPT2Model.from_pretrained(model_name)
             if pretrained:
-                self.transformer = pretrained_transformer
+                self.sequence_model = pretrained_transformer
             else:
-                self.transformer = GPT2Model(pretrained_transformer.config)
+                self.sequence_model = GPT2Model(pretrained_transformer.config)
 
             if model_name == 'gpt2':
                 embedding_size = 768
@@ -55,6 +55,40 @@ class FPT(nn.Module):
                 embedding_size = 1280
             elif model_name == 'gpt2-xl':
                 embedding_size = 1600
+
+        elif model_name == 'vit':
+
+            import timm
+
+            self.sequence_model = timm.create_model(
+                'vit_base_patch16_224', pretrained=pretrained, drop_rate=dropout, attn_drop_rate=dropout,
+            )
+            embedding_size = 768
+
+            self.vit_pos_embed = nn.Parameter(torch.zeros(1, 1024, embedding_size))
+            if freeze_pos:
+                self.vit_pos_embed.requires_grad = False
+
+        elif model_name == 'lstm':
+
+            from universal_computation.models.lstm import LNLSTM
+
+            num_layers, embedding_size = 3, 768
+
+            self.sequence_model = LNLSTM(
+                input_size=embedding_size,
+                hidden_size=embedding_size,
+                num_layers=num_layers,
+                batch_first=True,
+                residual=False,
+                dropout=dropout,
+                bidirectional=0,
+            )
+
+            # optionally:
+            # self.lstm_pos_embed = nn.Parameter(torch.zeros(1, 1024, embedding_size))
+            # if freeze_pos:
+            #     self.lstm_pos_embed.requires_grad = False
 
         else:
             raise NotImplementedError('model_name not implemented')
@@ -96,11 +130,11 @@ class FPT(nn.Module):
         self.out_net = nn.Sequential(*out_layers)
 
         if freeze_trans:
-            for name, p in self.transformer.named_parameters():
+            for name, p in self.sequence_model.named_parameters():
                 name = name.lower()
-                if 'ln' in name:
+                if 'ln' in name or 'norm' in name:
                     p.requires_grad = not freeze_ln
-                elif 'wpe' in name:
+                elif 'wpe' in name or 'position_embeddings' in name or 'pos_drop' in name:
                     p.requires_grad = not freeze_pos
                 elif 'mlp' in name:
                     p.requires_grad = not freeze_ff
@@ -115,8 +149,9 @@ class FPT(nn.Module):
             for p in self.out_net.parameters():
                 p.requires_grad = False
 
-    def forward(self, x, output_attentions=False):
+    def forward(self, x):
 
+        # reshape x (batch_size, seq_len, dim) into patches (batch_size, seq_len*num_patches, patch_dim)
         orig_dim = x.shape[-1]
         if orig_dim != self.input_dim and not self.use_embeddings_for_in:
             if orig_dim % self.input_dim != 0:
@@ -128,21 +163,32 @@ class FPT(nn.Module):
 
         x = self.in_net(x)
 
-        transformer_outputs = self.transformer(
-            inputs_embeds=x,
-            return_dict=True,
-            output_attentions=output_attentions,
-        )
-        x = transformer_outputs.last_hidden_state
+        # ignore input layer that comes with model and use our own embeddings
+        if self.model_name == 'vit':
+            x = x + self.vit_pos_embed[:, :x.shape[1]]
+            x = self.sequence_model.pos_drop(x)
+            for blk in self.sequence_model.blocks:
+                x = blk(x)
+            x = self.sequence_model.norm(x)
+        elif self.model_name == 'lstm':
+            # x = x + self.lstm_pos_embed[:, :x.shape[1]]
+            x, *_ = self.sequence_model(x)
+        else:
+            transformer_outputs = self.sequence_model(
+                inputs_embeds=x,
+                return_dict=True,
+            )
+            x = transformer_outputs.last_hidden_state
 
+        # take final hidden state of tokens corresponding to last patch
         if self.return_last_only:
             x = x[:,-ratio:]
 
+        # single linear layer applied to last hidden state
         x = self.out_net(x)
+
+        # if we did patch resizing above, return in the original shape (batch_size, seq_len, dim)
         if self.return_last_only and ratio > 1:
             x = x.reshape(x.shape[0], x.shape[1] // ratio, ratio * self.output_dim)
 
-        if output_attentions:
-            return x, transformer_outputs.attentions
-        else:
-            return x
+        return x
