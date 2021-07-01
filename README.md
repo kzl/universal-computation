@@ -80,3 +80,7 @@ Adding ```-w True``` will log results to Weights and Biases.
   year={2021}
 }
 ```
+
+## License
+
+MIT
