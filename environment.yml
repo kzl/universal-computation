@@ -6,6 +6,7 @@ dependencies:
         - einops==0.3.0
         - matplotlib==3.2.1
         - numpy==1.18.3
+        - tape-proteins==0.4
         - tensorflow==2.3.0
         - tensorflow-datasets==4.0.1
         - torch==1.7.1
