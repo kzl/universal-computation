@@ -10,3 +10,4 @@ MANIFEST
 /wandb
 /models
 /.ipynb_checkpoints
+*.*~
