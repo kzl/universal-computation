@@ -65,11 +65,11 @@ class EuroSatDataset(Dataset):
         parent_dir = cur_path.parent.absolute()
         train_test_dir = str(parent_dir)+'/data/2750'
         self.d_train = DataLoader(
-            PhenoCamDatasetHelper(train_test_dir, os.path.join(train_test_dir, 'train.csv'), transform=transform),
+            EuroSatDatasetHelper(train_test_dir, os.path.join(train_test_dir, 'train.csv'), transform=transform),
             batch_size=batch_size, drop_last=True, shuffle=True,
         )
         self.d_test = DataLoader(
-            PhenoCamDatasetHelper(train_test_dir, os.path.join(train_test_dir, 'test.csv'), transform=val_transform), 
+            EuroSatDatasetHelper(train_test_dir, os.path.join(train_test_dir, 'test.csv'), transform=val_transform), 
             batch_size=batch_size, drop_last=True, shuffle=True,
         )
 
