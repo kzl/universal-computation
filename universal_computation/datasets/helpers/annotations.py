@@ -13,12 +13,12 @@ labels_dict = {}
 counter = 0
 for subdir in os.listdir(data):
     labels_dict[subdir] = counter
-    counter += 1
     filepath = os.path.join(data,subdir)
     if os.path.isdir(filepath):
         for file in os.listdir(filepath):
             dict = {'label': subdir, 'int_label': labels_dict[subdir], 'img_name': file}
             df = df.append(dict, ignore_index = True)
+    counter += 1
 train=df.sample(frac=0.75,random_state=200) #random state is a seed value
 test=df.drop(train.index)
 

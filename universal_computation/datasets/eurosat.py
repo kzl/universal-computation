@@ -14,7 +14,7 @@ from universal_computation.datasets.dataset import Dataset
 class EuroSatDatasetHelper(torch.utils.data.Dataset):
     def __init__(self, img_dir, ann_file, transform=None, target_transform=None):
         df = pd.read_csv(ann_file)
-        self.img_labels = df[['img_name', 'int_label']].reset_index(drop=True)
+        self.img_labels = df[['label','img_name', 'int_label']].reset_index(drop=True)
         self.img_dir = img_dir
         self.transform = transform
         self.target_transform = target_transform
@@ -23,16 +23,17 @@ class EuroSatDatasetHelper(torch.utils.data.Dataset):
         return len(self.img_labels)
 
     def __getitem__(self, idx):
-        label = self.img_labels.iloc[idx, 1]
-        name = self.img_labels.iloc[idx, 0]
+        label = self.img_labels.iloc[idx, 0]
+        name = self.img_labels.iloc[idx, 1]
+        int_label = self.img_labels.iloc[idx, 2]
         temp = os.path.join(self.img_dir, label)
         img_path = os.path.join(temp,name)
         img = Image.open(img_path)
         if self.transform:
             img = self.transform(img)
         if self.target_transform:
-            label = self.target_transform(label)
-        return img, label
+            int_label = self.target_transform(int_label)
+        return img, int_label
 
 
 class EuroSatDataset(Dataset):
@@ -62,8 +63,7 @@ class EuroSatDataset(Dataset):
             transforms.Normalize(IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         ])
         cur_path = pathlib.Path().resolve()
-        parent_dir = cur_path.parent.absolute()
-        train_test_dir = str(parent_dir)+'/data/2750'
+        train_test_dir = str(cur_path)+'/universal_computation/data/2750'
         self.d_train = DataLoader(
             EuroSatDatasetHelper(train_test_dir, os.path.join(train_test_dir, 'train.csv'), transform=transform),
             batch_size=batch_size, drop_last=True, shuffle=True,
