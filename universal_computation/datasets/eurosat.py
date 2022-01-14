@@ -62,8 +62,7 @@ class EuroSatDataset(Dataset):
             transforms.Resize((224,224), interpolation=3),
             transforms.Normalize(IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
         ])
-        cur_path = pathlib.Path().resolve()
-        train_test_dir = str(cur_path)+'/universal_computation/data/2750'
+        train_test_dir = 'data/2750'
         self.d_train = DataLoader(
             EuroSatDatasetHelper(train_test_dir, os.path.join(train_test_dir, 'train.csv'), transform=transform),
             batch_size=batch_size, drop_last=True, shuffle=True,
