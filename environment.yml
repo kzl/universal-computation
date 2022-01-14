@@ -164,7 +164,6 @@ dependencies:
     - gitpython==3.1.24
     - lmdb==1.2.1
     - packaging==21.3
-    - pathlib==1.0.1
     - pathtools==0.1.2
     - protobuf==3.19.1
     - pyyaml==6.0
@@ -182,4 +181,3 @@ dependencies:
     - transformers==4.1.1
     - wandb==0.12.7
     - yaspin==2.1.0
-prefix: /u/home/a/anivrit/.conda/envs/fpt

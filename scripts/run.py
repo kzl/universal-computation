@@ -9,7 +9,7 @@ if __name__ == '__main__':
     parser.add_argument('task', help='the name of the task to be run')
     parser.add_argument('--model', default='gpt2', help='the model to use')
     args = parser.parse_args()
-
+    
     experiment_name = args.name
 
     experiment_params = dict(

@@ -94,6 +94,13 @@ def experiment(
         use_embeddings = False
         experiment_type = 'classification'
 
+    elif task.split('-')[0] == 'phenocam':
+        from universal_computation.datasets.phenocam import PhenoCamDataset
+        dataset = PhenoCamDataset(batch_size=batch_size, patch_size=patch_size, device=device, site=task.split('-')[1])
+        input_dim, output_dim = 3 * patch_size**2, 3
+        use_embeddings = False
+        experiment_type = 'classification'
+
     else:
         raise NotImplementedError('dataset not implemented')
 
